@@ -6,10 +6,11 @@ import java.util.List;
  * Created by catahoc on 4/5/2014.
  */
 public class Metro {
-    private List<Line> _lines;
+    public final List<Line> lines;
+    public final List<Station> stations;
 
-    public Metro(List<Line> lines) {
-
-        _lines = lines;
+    public Metro(List<Line> lines, List<Station> stations) {
+        this.stations = stations;
+        this.lines = lines;
     }
 }
