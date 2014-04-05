@@ -50,13 +50,13 @@ public class MetroBuilder {
             if(info.Y < miny) miny = info.Y;
             linesToStationsMap.get(line).add(info);
         }
-        float w = 800;
-        float h = 800;
+        float w = 400;
+        float h = 400;
 
         List<Line> lines = new ArrayList<Line>();
         List<Station> stations = new ArrayList<Station>();
         for(Map.Entry<String, List<StationInfo>> entry: linesToStationsMap.entrySet()){
-            Line line = new Line(entry.getKey(), Color.RED);
+            Line line = new Line(entry.getKey(), Color.rgb(182, 29, 142));
             for(StationInfo info: entry.getValue()){
                 float x = (info.X-minx)/(maxx-minx)*w;
                 float y = (info.Y-miny)/(maxy-miny)*h;
@@ -94,7 +94,7 @@ public class MetroBuilder {
             map[x] = new Station[h];
             for (int y = 0; y < h; ++y) {
                 if(x == y || (w-x-1) == y) {
-                    Pos pos = new Pos(x, y);
+                    Pos pos = new Pos(x*180, y*150);
                     Station s = new Station(String.format("s-{0}-{1}", x, y), pos);
                     map[x][y] = s;
                     stations.add(s);

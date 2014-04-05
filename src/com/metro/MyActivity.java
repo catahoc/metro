@@ -36,7 +36,7 @@ public class MyActivity extends Activity {
                 Paint paint = new Paint();
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setColor(Color.rgb(87, 12, 187));
-                paint.setStrokeWidth(10);
+                paint.setStrokeWidth(2);
                 for(Line line: _metro.lines){
                     Pos prev = null;
                     paint.setColor(line.color);
@@ -53,12 +53,13 @@ public class MyActivity extends Activity {
 
 
             public float getX(Pos pos){
-                return pos.x * 180;
+                return pos.x;
             }
             public float getY(Pos pos){
-                return pos.y * 150;
+                return pos.y;
             }
         });
-        _metro = new MetroBuilder().CreateMetroOfMoskvaReal(getResources());
+        _metro = new MetroBuilder().CreateMetroOfMoskva();
+        //_metro = new MetroBuilder().CreateMetroOfMoskvaReal(getResources());
     }
 }
