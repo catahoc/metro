@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript" src="http://api-maps.yandex.ru/2.0-stable/?load=package.full&lang=ru_RU"></script>
+		<script type="text/javascript">
+			var moscowMap;
+			var llToXy;
+
+			ymaps.ready(function (){
+				// координаты центра москвы
+				moscowCenter = [55.749875, 37.616298];
+				
+				// Создаем карту, масштаб и расположение которой как раз охватывает все метро
+				moscowMap = new ymaps.Map('map', {
+					center: moscowCenter,
+					zoom: 10
+				});
+
+
+			    moscowMap.events.add('click', function (e) {
+			        var newCoords = e.get('coordPosition');
+			        moveMap(newCoords);	
+			    });
+
+				// функция преобразования географических координат в декартовы (долгота,широта => x, y) координаты на карте, созданной выше
+				llToXy = function (ll) {
+					var projection = moscowMap.options.get('projection');
+					return moscowMap.converter.globalToPage(projection.toGlobalPixels(ll, moscowMap.getZoom()));
+				};
+				
+
+				function moveMap(newCoords)
+				{
+										// запрос к яндексу на близкие к центру москвы станции метро, не менее 150
+					var coder = ymaps.geocode(newCoords, {kind: 'metro', results: 200});
+					
+					// при получении результата запроса
+					coder.then(function (res){
+						var objects = res.geoObjects;
+						
+						// для каждого объекта
+						objects.each(function (el, i){
+						
+							// берем имя станции
+							var name = el.properties.get('name');
+							
+							// берем описание станции (там линия метро известна)
+							var desc = el.properties.get('description');
+
+							var coords = el.geometry.getCoordinates();
+							coords = llToXy(coords)
+							//var y = el.firstGeoObject.geometry.getCoordinates(y);
+
+							
+							// заполняем таблицу
+							$('#stations').append(
+								$('<tr/>')
+									.append($('<td/>').text(name))
+									.append($('<td/>').text(desc))
+									.append($('<td/>').text(coords[0]))
+									.append($('<td/>').text(coords[1]))
+							);
+						});
+						
+						moscowMap.geoObjects.add(res.geoObjects);
+					});
+				}
+
+				//alert(llToXy([55.76, 37.64]));
+			});
+		</script>
+	</head>
+	<body>
+		<div style="width: 1200px; height: 700px" id="map" />
+		<table id="stations">
+			<tr>
+				<td>Name</td>
+				<td>Line</td>
+				<td>X</td>
+				<td>Y</td>
+			</tr>
+		</table>
+	</body>
+</html>
