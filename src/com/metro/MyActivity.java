@@ -59,6 +59,6 @@ public class MyActivity extends Activity {
                 return pos.y * 150;
             }
         });
-        _metro = new MetroBuilder().CreateMetroOfMoskva();
+        _metro = new MetroBuilder().CreateMetroOfMoskvaReal(getResources());
     }
 }
