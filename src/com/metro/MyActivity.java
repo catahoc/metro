@@ -34,6 +34,8 @@ public class MyActivity extends Activity {
             protected void onDraw(Canvas canvas) {
                 super.onDraw(canvas);
                 Paint paint = new Paint();
+                Paint stationPaint = new Paint();
+                stationPaint.setColor(Color.WHITE);
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setColor(Color.rgb(87, 12, 187));
                 paint.setStrokeWidth(2);
@@ -42,6 +44,7 @@ public class MyActivity extends Activity {
                     paint.setColor(line.color);
                     for(StationOfLine sol:line.ofStations){
                         Station station = sol.station;
+                        canvas.drawCircle(station.pos.x, station.pos.y, 3, stationPaint);
                         if(sol.index != 0){
                             Pos next = station.pos;
                             canvas.drawLine(getX(prev), getY(prev), getX(next), getY(next), paint);

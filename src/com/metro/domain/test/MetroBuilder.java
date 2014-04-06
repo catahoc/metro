@@ -27,39 +27,56 @@ public class MetroBuilder {
         }
     }
 
+    private class LineInfo{
+        public int color;
+        public List<StationInfo> stations;
+
+        public LineInfo(){
+            stations = new ArrayList<StationInfo>();
+        }
+    }
+
     public Metro CreateMetroOfMoskvaReal(Resources resources){
-        InputStream stream = resources.openRawResource(R.raw.stations);
-        InputStreamReader reader = new InputStreamReader(stream);
-        String[] csvStations = readLines(reader);
+        String[] csvStations = readLines(resources, R.raw.stations);
+        String[] csvLines = readLines(resources, R.raw.lines);
 
         float minx = Float.MAX_VALUE;
         float miny = Float.MAX_VALUE;
         float maxx = 0.0f;
         float maxy = 0.0f;
-        Map<String, List<StationInfo>> linesToStationsMap = new HashMap<String, List<StationInfo>>();
+        Map<String, LineInfo> linesToStationsMap = new HashMap<String, LineInfo>();
         for(String item : csvStations){
             String[] splitted = item.split(",");
             String line = splitted[3];
             StationInfo info = new StationInfo(Float.parseFloat(splitted[5]), Float.parseFloat(splitted[4]), splitted[0]);
             if(!linesToStationsMap.containsKey(line)){
-                linesToStationsMap.put(line, new ArrayList<StationInfo>());
+                linesToStationsMap.put(line, new LineInfo());
             }
             if(info.X > maxx) maxx = info.X;
             if(info.Y > maxy) maxy = info.Y;
             if(info.X < minx) minx = info.X;
             if(info.Y < miny) miny = info.Y;
-            linesToStationsMap.get(line).add(info);
+            linesToStationsMap.get(line).stations.add(info);
         }
-        float w = 400;
-        float h = 400;
+        for(String item : csvLines){
+            String[] splitted = item.split(",");
+            int color = Color.rgb(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3]), Integer.parseInt(splitted[4]));
+            String lineName = splitted[0];
+            if(linesToStationsMap.containsKey(lineName)){
+                linesToStationsMap.get(lineName).color = color;
+            }
+        }
+        float w = 800;
+        float h = 600;
 
         List<Line> lines = new ArrayList<Line>();
         List<Station> stations = new ArrayList<Station>();
-        for(Map.Entry<String, List<StationInfo>> entry: linesToStationsMap.entrySet()){
-            Line line = new Line(entry.getKey(), Color.rgb(182, 29, 142));
-            for(StationInfo info: entry.getValue()){
+        for(Map.Entry<String, LineInfo> entry: linesToStationsMap.entrySet()){
+            LineInfo linfo = entry.getValue();
+            Line line = new Line(entry.getKey(), linfo.color);
+            for(StationInfo info: linfo.stations){
                 float x = (info.X-minx)/(maxx-minx)*w;
-                float y = (info.Y-miny)/(maxy-miny)*h;
+                float y = h-(info.Y-miny)/(maxy-miny)*h;
                 Station station = new Station(info.name, new Pos(x, y));
                 line.appendStation(station);
                 stations.add(station);
@@ -69,8 +86,10 @@ public class MetroBuilder {
         return new Metro(lines, stations);
     }
 
-    public String[] readLines(Reader reader) {
+    public String[] readLines(Resources res, int resId) {
         try {
+            InputStream stream = res.openRawResource(resId);
+            InputStreamReader reader = new InputStreamReader(stream);
             BufferedReader bufferedReader = new BufferedReader(reader);
             List<String> lines = new ArrayList<String>();
             String line = null;
