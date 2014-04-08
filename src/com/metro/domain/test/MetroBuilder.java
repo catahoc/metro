@@ -40,10 +40,6 @@ public class MetroBuilder {
         String[] csvStations = readLines(resources, R.raw.stations);
         String[] csvLines = readLines(resources, R.raw.lines);
 
-        float minx = Float.MAX_VALUE;
-        float miny = Float.MAX_VALUE;
-        float maxx = 0.0f;
-        float maxy = 0.0f;
         Map<String, LineInfo> linesToStationsMap = new HashMap<String, LineInfo>();
         for(String item : csvStations){
             String[] splitted = item.split(",");
@@ -52,10 +48,6 @@ public class MetroBuilder {
             if(!linesToStationsMap.containsKey(line)){
                 linesToStationsMap.put(line, new LineInfo());
             }
-            if(info.X > maxx) maxx = info.X;
-            if(info.Y > maxy) maxy = info.Y;
-            if(info.X < minx) minx = info.X;
-            if(info.Y < miny) miny = info.Y;
             linesToStationsMap.get(line).stations.add(info);
         }
         for(String item : csvLines){
@@ -66,8 +58,6 @@ public class MetroBuilder {
                 linesToStationsMap.get(lineName).color = color;
             }
         }
-        float w = 800;
-        float h = 600;
 
         List<Line> lines = new ArrayList<Line>();
         List<Station> stations = new ArrayList<Station>();
@@ -75,8 +65,8 @@ public class MetroBuilder {
             LineInfo linfo = entry.getValue();
             Line line = new Line(entry.getKey(), linfo.color);
             for(StationInfo info: linfo.stations){
-                float x = (info.X-minx)/(maxx-minx)*w;
-                float y = h-(info.Y-miny)/(maxy-miny)*h;
+                float x = info.X;
+                float y = info.Y;
                 Station station = new Station(info.name, new Pos(x, y));
                 line.appendStation(station);
                 stations.add(station);
