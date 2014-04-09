@@ -9,6 +9,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import com.metro.domain.*;
@@ -21,26 +22,15 @@ import java.nio.ByteOrder;
 import java.util.List;
 
 public class MyActivity extends Activity {
+    private float latip = 1/2000f;
+    private float lonip = 1/4000f;
     private LinearLayout _surface; //55.739804,37.520167
     private ViewPort _viewPort;
+    private View _canvasHolder;
     private Metro _metro;
 
-    void initViewPort(){
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        _viewPort = new ViewPort(size.x, size.y, 37.520167f, 55.739804f, 1/4000f, 1/2000f);
-    }
-    /**
-     * Called when the activity is first created.
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initViewPort();
-        setContentView(R.layout.main);
-        _surface = (LinearLayout) this.findViewById(R.id.surface);
-        _surface.addView(new View(getApplicationContext()) {
+    void createView(){
+        _canvasHolder = new View(getApplicationContext()) {
             @Override
             protected void onDraw(Canvas canvas) {
                 super.onDraw(canvas);
@@ -66,16 +56,51 @@ public class MyActivity extends Activity {
                     }
                 }
             }
+        };
+    }
 
-
-            public float getX(Pos pos){
-                return pos.x;
-            }
-            public float getY(Pos pos){
-                return pos.y;
-            }
-        });
+    void initViewPort(){
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        _viewPort = new ViewPort(size.x, size.y, 55.739804f, 37.520167f, 1/4000f, 1/2000f);
+    }
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initViewPort();
+        setContentView(R.layout.main);
+        _surface = (LinearLayout) this.findViewById(R.id.surface);
+        createView();
+        _surface.addView(_canvasHolder);
         //_metro = new MetroBuilder().CreateMetroOfMoskva();
         _metro = new MetroBuilder().CreateMetroOfMoskvaReal(getResources());
+        _canvasHolder.setOnTouchListener(new View.OnTouchListener() {
+            Float x;
+            Float y;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        x  =event.getX();
+                        y = event.getY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float newx  =event.getX();
+                        float newy = event.getY();
+                        float dx = newx-x;
+                        float dy = newy-y;
+                        _viewPort.moveCenter(-dx, -dy);
+                        _canvasHolder.invalidate();
+                        x = newx;
+                        y = newy;
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 }
