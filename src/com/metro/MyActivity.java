@@ -37,10 +37,13 @@ public class MyActivity extends Activity {
                 super.onDraw(canvas);
                 Paint paint = new Paint();
                 Paint stationPaint = new Paint();
+                Paint textPaint = new Paint();
+                textPaint.setStrokeWidth(13);
+                textPaint.setColor(Color.RED);
+                textPaint.setTextSize(16);
                 stationPaint.setColor(Color.WHITE);
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setColor(Color.rgb(87, 12, 187));
-                paint.setStrokeWidth(2);
                 for(Line line: _metro.lines){
                     Pos prev = null;
                     paint.setColor(line.color);
@@ -55,6 +58,7 @@ public class MyActivity extends Activity {
                         float x = _viewPort.getX(station.pos.x);
                         float y = _viewPort.getY(station.pos.y);
                         canvas.drawCircle(x, y, 3, stationPaint);
+                        canvas.drawText(Integer.toString(station.id), x, y, textPaint);
                         if(!first){
                             Pos next = station.pos;
                             _viewPort.draw(prev.x, prev.y, next.x, next.y, canvas, paint);
@@ -65,6 +69,19 @@ public class MyActivity extends Activity {
                         prev = station.pos;
                     }
                 }
+                for(Transfer transfer: _metro.transfers){
+                    Rect rect = Rect.compute(transfer.stations).convert(_viewPort);
+                    float cx = (rect.x1+rect.x2)/2.0f;
+                    float cy = (rect.y1+rect.y2)/2.0f;
+                    float h = rect.getH();
+                    float w = rect.getW();
+                    float radius = (float) (Math.sqrt((h*h+w*w))/2.0f)+5.0f;
+                    Paint tfp = new Paint();
+                    tfp.setStyle(Paint.Style.FILL_AND_STROKE);
+                    tfp.setColor(Color.GREEN);
+                    tfp.setAlpha(100);
+                    canvas.drawCircle(cx, cy, radius, tfp);
+                }
             }
         };
     }
@@ -73,7 +90,7 @@ public class MyActivity extends Activity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        _viewPort = new ViewPort(size.x, size.y, 55.739804f, 37.520167f, 1/4000f, 1/2000f);
+        _viewPort = new ViewPort(size.x, size.y, 55.739804f, 37.520167f, 1/16000f, 1/8000f);
     }
     /**
      * Called when the activity is first created.

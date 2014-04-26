@@ -3,10 +3,7 @@ package com.metro.domain.test;
 import android.content.res.Resources;
 import android.graphics.Color;
 import com.metro.R;
-import com.metro.domain.Line;
-import com.metro.domain.Metro;
-import com.metro.domain.Pos;
-import com.metro.domain.Station;
+import com.metro.domain.*;
 
 import java.io.*;
 import java.util.*;
@@ -43,6 +40,7 @@ public class MetroBuilder {
     public Metro CreateMetroOfMoskvaReal(Resources resources){
         String[] csvStations = readLines(resources, R.raw.stations);
         String[] csvLines = readLines(resources, R.raw.lines);
+        String[] csvTransfers = readLines(resources, R.raw.transfers);
 
         Map<String, LineInfo> linesToStationsMap = new HashMap<String, LineInfo>();
         for(String item : csvStations) {
@@ -82,7 +80,26 @@ public class MetroBuilder {
             }
             lines.add(line);
         }
-        return new Metro(lines, stations);
+
+        ArrayList<Transfer> transfers = new ArrayList<Transfer>();
+        for(String csvTransfer: csvTransfers){
+            if(csvTransfer.startsWith(";") || csvTransfer.isEmpty()){
+                continue;
+            }
+            String[] idstrs = csvTransfer.split(",");
+            List<Station> tstations = new ArrayList<Station>();
+            for(String idstr: idstrs){
+                int id = Integer.parseInt(idstr);
+                for(Station station: stations){
+                    if(station.id == id){
+                        tstations.add(station);
+                    }
+                }
+            }
+            transfers.add(new Transfer(tstations));
+        }
+
+        return new Metro(lines, stations, transfers);
     }
 
     public String[] readLines(Resources res, int resId) {
@@ -134,7 +151,7 @@ public class MetroBuilder {
         circle.appendStation(map[1][1]);
 
         Line[] lines = {line1, line2, circle};
-        return new Metro(Arrays.asList(lines), stations);
+        return new Metro(Arrays.asList(lines), stations, new ArrayList<Transfer>());
     }
 
 }

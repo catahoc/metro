@@ -8,9 +8,11 @@ import java.util.List;
 public class Metro {
     public final List<Line> lines;
     public final List<Station> stations;
+    public final List<Transfer> transfers;
 
-    public Metro(List<Line> lines, List<Station> stations) {
+    public Metro(List<Line> lines, List<Station> stations, List<Transfer> transfers) {
         this.stations = stations;
         this.lines = lines;
+        this.transfers = transfers;
     }
 }
