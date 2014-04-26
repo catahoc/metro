@@ -13,11 +13,13 @@ public class Line {
     public final String name;
     public final List<StationOfLine> ofStations;
     public final int color;
+    public final boolean isLooped;
 
-    public Line(String name, int color) {
+    public Line(String name, int color, boolean isLooped) {
         this.name = name;
         this.ofStations = new ArrayList<StationOfLine>();
         this.color = color;
+        this.isLooped = isLooped;
     }
 
     public void appendStation(Station station){

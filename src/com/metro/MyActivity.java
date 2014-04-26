@@ -19,6 +19,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyActivity extends Activity {
@@ -43,14 +44,23 @@ public class MyActivity extends Activity {
                 for(Line line: _metro.lines){
                     Pos prev = null;
                     paint.setColor(line.color);
-                    for(StationOfLine sol:line.ofStations){
+                    List<StationOfLine> stations = line.ofStations;
+                    if(line.isLooped){
+                        stations = (List<StationOfLine>) ((ArrayList<StationOfLine>)stations).clone();
+                        stations.add(stations.get(0));
+                    }
+                    boolean first = true;
+                    for(StationOfLine sol:stations){
                         Station station = sol.station;
                         float x = _viewPort.getX(station.pos.x);
                         float y = _viewPort.getY(station.pos.y);
                         canvas.drawCircle(x, y, 3, stationPaint);
-                        if(sol.index != 0){
+                        if(!first){
                             Pos next = station.pos;
                             _viewPort.draw(prev.x, prev.y, next.x, next.y, canvas, paint);
+                        }
+                        else{
+                            first = false;
                         }
                         prev = station.pos;
                     }

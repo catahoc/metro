@@ -29,6 +29,7 @@ public class MetroBuilder {
 
     private class LineInfo{
         public int color;
+        public boolean isLooped = false;
         public List<StationInfo> stations;
 
         public LineInfo(){
@@ -41,7 +42,7 @@ public class MetroBuilder {
         String[] csvLines = readLines(resources, R.raw.lines);
 
         Map<String, LineInfo> linesToStationsMap = new HashMap<String, LineInfo>();
-        for(String item : csvStations){
+        for(String item : csvStations) {
             String[] splitted = item.split(",");
             String line = splitted[3];
             StationInfo info = new StationInfo(Float.parseFloat(splitted[5]), Float.parseFloat(splitted[4]), splitted[0]);
@@ -55,7 +56,11 @@ public class MetroBuilder {
             int color = Color.rgb(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3]), Integer.parseInt(splitted[4]));
             String lineName = splitted[0];
             if(linesToStationsMap.containsKey(lineName)){
-                linesToStationsMap.get(lineName).color = color;
+                LineInfo linfo = linesToStationsMap.get(lineName);
+                if (splitted.length == 6 && splitted[5].equals("looped")) {
+                    linfo.isLooped = true;
+                }
+                linfo.color = color;
             }
         }
 
@@ -63,7 +68,7 @@ public class MetroBuilder {
         List<Station> stations = new ArrayList<Station>();
         for(Map.Entry<String, LineInfo> entry: linesToStationsMap.entrySet()){
             LineInfo linfo = entry.getValue();
-            Line line = new Line(entry.getKey(), linfo.color);
+            Line line = new Line(entry.getKey(), linfo.color, linfo.isLooped);
             for(StationInfo info: linfo.stations){
                 float x = info.X;
                 float y = info.Y;
@@ -110,14 +115,14 @@ public class MetroBuilder {
                 }
             }
         }
-        Line line1 = new Line("Таганско-Краснопресненская", Color.rgb(182, 29, 142));
-        Line line2 = new Line("Сокольническая", Color.RED);
+        Line line1 = new Line("Таганско-Краснопресненская", Color.rgb(182, 29, 142), false);
+        Line line2 = new Line("Сокольническая", Color.RED, false);
         for (int ix = 0; ix < w; ++ix){
             line1.appendStation(map[ix][ix]);
             line2.appendStation(map[ix][w-ix-1]);
         }
 
-        Line circle = new Line("Кольцевая", Color.rgb(116, 92, 47));
+        Line circle = new Line("Кольцевая", Color.rgb(116, 92, 47), true);
         circle.appendStation(map[1][1]);
         circle.appendStation(map[1][3]);
         circle.appendStation(map[3][3]);
