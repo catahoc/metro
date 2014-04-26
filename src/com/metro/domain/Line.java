@@ -14,12 +14,14 @@ public class Line {
     public final List<StationOfLine> ofStations;
     public final int color;
     public final boolean isLooped;
+    public final int id;
 
-    public Line(String name, int color, boolean isLooped) {
+    public Line(String name, int color, boolean isLooped, int id) {
         this.name = name;
         this.ofStations = new ArrayList<StationOfLine>();
         this.color = color;
         this.isLooped = isLooped;
+        this.id = id;
     }
 
     public void appendStation(Station station){

@@ -19,17 +19,20 @@ public class MetroBuilder {
         public final float X;
         public final float Y;
         public final String name;
+        public final int id;
 
-        private StationInfo(float x, float y, String name) {
+        private StationInfo(float x, float y, String name, int id) {
             this.X = x;
             Y = y;
             this.name = name;
+            this.id = id;
         }
     }
 
     private class LineInfo{
         public int color;
         public boolean isLooped = false;
+        public int id;
         public List<StationInfo> stations;
 
         public LineInfo(){
@@ -45,7 +48,7 @@ public class MetroBuilder {
         for(String item : csvStations) {
             String[] splitted = item.split(",");
             String line = splitted[3];
-            StationInfo info = new StationInfo(Float.parseFloat(splitted[5]), Float.parseFloat(splitted[4]), splitted[0]);
+            StationInfo info = new StationInfo(Float.parseFloat(splitted[5]), Float.parseFloat(splitted[4]), splitted[0], Integer.parseInt(splitted[6]));
             if(!linesToStationsMap.containsKey(line)){
                 linesToStationsMap.put(line, new LineInfo());
             }
@@ -57,9 +60,10 @@ public class MetroBuilder {
             String lineName = splitted[0];
             if(linesToStationsMap.containsKey(lineName)){
                 LineInfo linfo = linesToStationsMap.get(lineName);
-                if (splitted.length == 6 && splitted[5].equals("looped")) {
+                if (splitted[5].equals("looped")) {
                     linfo.isLooped = true;
                 }
+                linfo.id = Integer.parseInt(splitted[6]);
                 linfo.color = color;
             }
         }
@@ -68,11 +72,11 @@ public class MetroBuilder {
         List<Station> stations = new ArrayList<Station>();
         for(Map.Entry<String, LineInfo> entry: linesToStationsMap.entrySet()){
             LineInfo linfo = entry.getValue();
-            Line line = new Line(entry.getKey(), linfo.color, linfo.isLooped);
+            Line line = new Line(entry.getKey(), linfo.color, linfo.isLooped, linfo.id);
             for(StationInfo info: linfo.stations){
                 float x = info.X;
                 float y = info.Y;
-                Station station = new Station(info.name, new Pos(x, y));
+                Station station = new Station(info.name, new Pos(x, y), info.id);
                 line.appendStation(station);
                 stations.add(station);
             }
@@ -109,20 +113,20 @@ public class MetroBuilder {
             for (int y = 0; y < h; ++y) {
                 if(x == y || (w-x-1) == y) {
                     Pos pos = new Pos(x*180, y*150);
-                    Station s = new Station(String.format("s-{0}-{1}", x, y), pos);
+                    Station s = new Station(String.format("s-{0}-{1}", x, y), pos, y*w+x+1);
                     map[x][y] = s;
                     stations.add(s);
                 }
             }
         }
-        Line line1 = new Line("Таганско-Краснопресненская", Color.rgb(182, 29, 142), false);
-        Line line2 = new Line("Сокольническая", Color.RED, false);
+        Line line1 = new Line("Таганско-Краснопресненская", Color.rgb(182, 29, 142), false, 1);
+        Line line2 = new Line("Сокольническая", Color.RED, false, 2);
         for (int ix = 0; ix < w; ++ix){
             line1.appendStation(map[ix][ix]);
             line2.appendStation(map[ix][w-ix-1]);
         }
 
-        Line circle = new Line("Кольцевая", Color.rgb(116, 92, 47), true);
+        Line circle = new Line("Кольцевая", Color.rgb(116, 92, 47), true, 3);
         circle.appendStation(map[1][1]);
         circle.appendStation(map[1][3]);
         circle.appendStation(map[3][3]);
